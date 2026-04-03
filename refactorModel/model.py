@@ -3,6 +3,7 @@ from refactorModel.section import Section
 import utils
 import sys
 import os
+import common.numeric as numeric
 
 
 
@@ -51,6 +52,7 @@ class Model :
     ):
         print('refactorModel')
         
+        # This calls should be abstracted.
         matrix_descr  = utils.read_csv(filename1) if filename1 != "" else None
         matrix_coor   = utils.read_csv(filename2) if filename2 != "" else None 
         matrix_height = utils.read_csv(filename3,cols=(0,1)) if filename3 != "" else None
@@ -64,9 +66,7 @@ class Model :
         if (filename3 == "") :
             print(">> Advertencia: No se ha cargado un archivo longitudinal")
         
-        
-        
-        print(matrix_height)
+
         # This dictionary contains the precise height of the DM in the project.
         self.heights = dict(matrix_height) if filename3 else {}
         
@@ -131,48 +131,38 @@ class Model :
         return d
     
     
-    def guessHeight (self,km):
-        try:
-            dm_float = np.round(float(km),3)
-        except:
-            print (f'No hay cambio sugerido para {dm}')
-            
+
+
+    def guessHeight(self, km):
+        dm_float = numeric.to_rounded_float(km)
+        if dm_float is None:
+            print(f'No hay cambio sugerido para {km}')
+            return
+
         for dm0 in self.heights:
-            try:
-                dm0_float = np.round(float(dm0),3)
-            except:
+            dm0_float = numeric.to_rounded_float(dm0)
+            if dm0_float is None:
                 continue
-            
-            if np.abs(dm_float - dm0_float) <= 0.01:
+
+            if numeric.are_close(dm_float, dm0_float, tolerance=0.01):
                 print(f'Cambio sugerido: {km} --> {dm0}')
                 return
-            
-        print (f'No hay cambio sugerido para {km}')
-        return
-    
-    # FORMER IMPLEMENTATION 
-    # dm2 = km[:-1]
-    # for i in range(0,10):
-    #     dm3 = dm2 + f'{i}'
-    #     if dm3 in self.heights:
-    #         print(f"Cambio de DM sugerido:\n{km} --> {dm3}\n")
-    
-    
-    
-    def findHeight (self, dm, default=0):
-        try:
-            height = self.heights[dm]
-        except KeyError:
+
+        print(f'No hay cambio sugerido para {km}')
+
+    def findHeight(self, dm, default=0):
+        if dm not in self.heights:
             print(f'>> Advertencia: DM {dm} no se encuentra en el archivo Longitudinal')
             self.guessHeight(dm)
             return default
-        try:
-            num_height = np.float64(height)
-            return height 
-        except:
+
+        height = self.heights[dm]
+
+        if numeric.to_float(height) is None:
             print(f'>> Advertencia: DM {dm} presenta un error en el archivo longitudinal')
             return default
-    
+
+        return height
     
     
     def reference_vector(self):
@@ -330,10 +320,6 @@ def main ():
         filename2 = filename2, # COOR
         filename3 = "", # LONG
     )
-    
-    i0 = model.get_lower_dm_index(3400)
-    i1 = model.get_upper_dm_index(5500)
-
 
 
 
