@@ -4,6 +4,8 @@ import utils
 import sys
 import os
 import common.numeric as numeric
+from .height import HeightEntry, LongitudinalProfile
+from .crossSection import CrossSectionRow, CrossSectionBlock, CrossSectionFile
 
 
 
@@ -67,8 +69,11 @@ class Model :
             print(">> Advertencia: No se ha cargado un archivo longitudinal")
         
 
+        self.profile = LongitudinalProfile.from_matrix(matrix_height);
+
         # This dictionary contains the precise height of the DM in the project.
-        self.heights = dict(matrix_height) if filename3 else {}
+        # self.heights = dict(matrix_height) if filename3 else {}
+        self.heights = self.profile.to_legacy_dict ()
         
         # list of cross sections of this model
         self.sections = [] # [Section]
@@ -134,29 +139,19 @@ class Model :
 
 
     def guessHeight(self, km):
-        dm_float = numeric.to_rounded_float(km)
-        if dm_float is None:
+        suggestion = self.profile.guess_dm(km)
+        if suggestion is None:
             print(f'No hay cambio sugerido para {km}')
-            return
-
-        for dm0 in self.heights:
-            dm0_float = numeric.to_rounded_float(dm0)
-            if dm0_float is None:
-                continue
-
-            if numeric.are_close(dm_float, dm0_float, tolerance=0.01):
-                print(f'Cambio sugerido: {km} --> {dm0}')
-                return
-
-        print(f'No hay cambio sugerido para {km}')
+        else:
+            print(f'Cambio sugerido: {km} --> {suggestion}')
 
     def findHeight(self, dm, default=0):
-        if dm not in self.heights:
+        if not self.profile.contains(dm):
             print(f'>> Advertencia: DM {dm} no se encuentra en el archivo Longitudinal')
             self.guessHeight(dm)
             return default
 
-        height = self.heights[dm]
+        height = self.profile.get_height_raw(dm, default)
 
         if numeric.to_float(height) is None:
             print(f'>> Advertencia: DM {dm} presenta un error en el archivo longitudinal')
@@ -195,6 +190,26 @@ class Model :
         "Get a section by its index number"
         i = self.sectionIndex[index]
         return self.sections[i]
+    
+
+    def build_section_from_blocks(self, blocks, oriented=True, true_z=True):
+        # iterate over argument blocks.
+        for block in blocks:
+            # assign the adjusted height to block
+            height = (
+                self.findHeight(block.dm_raw, default=block.default_height_raw)
+                if true_z else block.default_height_raw
+            )
+
+            section = Section(
+                block.dm_raw,
+                block.matrix_raw(),
+                block.codes_raw(),
+                height,
+                axis=block.axis_raw,
+                oriented=oriented,
+            )
+            self.sections.append(section)
 
 
     def build_section (self,matrix,oriented=True,true_z = True): 
