@@ -79,15 +79,27 @@ class Model :
         self.sections = [] # [Section]
         self.sectionIndex = [] # [Int]
         
-        # oriented cross sections are build and oriented
+
+
         if matrix_coor is not None:
-            self.build_section(matrix_coor,oriented=True, true_z=True if filename3 else False)
+            coor_file = CrossSectionFile.from_matrix(matrix_coor)
+            self.build_section_from_blocks(
+                coor_file.blocks,
+                oriented=True,
+                true_z=bool(filename3),
+            )
             self.sections.sort()
             self.reference_vector()
-        
+
         if matrix_descr is not None:
-            self.build_section(matrix_descr,oriented=False, true_z = True if filename3 else False)
-            
+            descr_file = CrossSectionFile.from_matrix(matrix_descr)
+            self.build_section_from_blocks(
+                descr_file.blocks,
+                oriented=False,
+                true_z=bool(filename3),
+            )
+
+
         self.distance_sign()
         self.sections.sort()
         self.deduplicate()
@@ -212,53 +224,56 @@ class Model :
             self.sections.append(section)
 
 
-    def build_section (self,matrix,oriented=True,true_z = True): 
-        start = 0 # start index of matrix chunk copied
-        end = 0 # end index of matrix chunk copied
-        i = 1 # pointer to traverse the matrix 
-        length = matrix.shape[0] # vertical size of matrix
-        
-        while i < length :
-            
-            # If the value of km is nan, then keep stacking more
-            # points to the current section
-            if matrix[i][0] == "" :
-                end = end + 1;
-                i   = i + 1
-                
-                if(i == length):
-                    
-                    height = self.findHeight(matrix[start][0],default=matrix[start][3]) if true_z else matrix[start][3]
-                    
-                    section = Section(
-                        matrix[start][0],
-                        matrix[start:end+1],
-                        matrix[start:end+1,4],
-                        height,
-                        axis = matrix[start,1:3],
-                        oriented = oriented
-                    )
-                    
-                    self.sections.append(section)
-            
-            
-            elif matrix[i][0] != "" :
-                
-                end = end + 1;
-                height = self.findHeight(matrix[start][0],default=matrix[start][3]) if true_z else matrix[start][3]
-                section = Section(
-                    matrix[start][0],
-                    matrix[start:end],
-                    matrix[start:end,4],
-                    height,
-                    axis = matrix[start, 1:3],
-                    oriented = oriented
-                )  
-                self.sections.append(section)
-                start = i
-                end = i
-                i = i + 1
+    #def build_section (self,matrix,oriented=True,true_z = True): 
+    #    start = 0 # start index of matrix chunk copied
+    #    end = 0 # end index of matrix chunk copied
+    #    i = 1 # pointer to traverse the matrix 
+    #    length = matrix.shape[0] # vertical size of matrix
+    #    
+    #    while i < length :
+    #        
+    #        # If the value of km is nan, then keep stacking more
+    #        # points to the current section
+    #        if matrix[i][0] == "" :
+    #            end = end + 1;
+    #            i   = i + 1
+    #            
+    #            if(i == length):
+    #                
+    #                height = self.findHeight(matrix[start][0],default=matrix[start][3]) if true_z else matrix[start][3]
+    #                
+    #                section = Section(
+    #                    matrix[start][0],
+    #                    matrix[start:end+1],
+    #                    matrix[start:end+1,4],
+    #                    height,
+    #                    axis = matrix[start,1:3],
+    #                    oriented = oriented
+    #                )
+    #                
+    #                self.sections.append(section)
+    #        
+    #        
+    #        elif matrix[i][0] != "" :
+    #            
+    #            end = end + 1;
+    #            height = self.findHeight(matrix[start][0],default=matrix[start][3]) if true_z else matrix[start][3]
+    #            section = Section(
+    #                matrix[start][0],
+    #                matrix[start:end],
+    #                matrix[start:end,4],
+    #                height,
+    #                axis = matrix[start, 1:3],
+    #                oriented = oriented
+    #            )  
+    #            self.sections.append(section)
+    #            start = i
+    #            end = i
+    #            i = i + 1
+    #
     
+
+
     
  
     def get_lower_dm_index(self, dm = "0.000"):
