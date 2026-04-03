@@ -1,0 +1,5 @@
+Before the refactor of the system, this behavior
+contained a png images that provided the point
+names for annexes as an image. These images have
+been eliminated in the refactor, so any dependence
+on this dir's images should be broken.
