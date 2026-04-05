@@ -58,7 +58,7 @@ def main () :
     desc_file = "/home/jstvns/axis/eqc-input/model/dat-et.csv"
     long_file = "/home/jstvns/axis/eqc-input/model/longitudinal.csv"
     
-    model = mdl.Model(
+    model = mdl.Model.from_files(
         filename1 = desc_file,
         filename3 = long_file
     )

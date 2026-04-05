@@ -112,8 +112,8 @@ class ControlModel :
         f1 = "/home/jstvns/eqc-input/auto-control/coor-topo.csv"
         f2 = "/home/jstvns/eqc-input/auto-control/coor-ctrl.csv"
         
-        model_proj = mdl.Model(filename2 = f1)
-        model_ctrl = mdl.Model(filename2 = f2)
+        model_proj = mdl.Model.from_files(filename2 = f1)
+        model_ctrl = mdl.Model.from_files(filename2 = f2)
         
         self.model_topo = model_proj
         self.model_ctrl = model_ctrl
@@ -219,8 +219,8 @@ def main () :
     f1 = "/home/jstvns/eqc-input/auto-control/coor-topo.csv"
     f2 = "/home/jstvns/eqc-input/auto-control/coor-ctrl.csv"
     
-    model_topo = mdl.Model(filename2 = f1)
-    model_ctrl = mdl.Model(filename2 = f2)
+    model_topo = mdl.Model.from_files(filename2 = f1)
+    model_ctrl = mdl.Model.from_files(filename2 = f2)
     
     model = ControlModel(model_topo,model_ctrl)
     

@@ -368,7 +368,7 @@ def main ():
     filename2 = "/home/jstvns/eqc-input/auto-control/coor-ctrl.csv"
     filename3 = "/home/jstvns/eqc-input/dbase-input/longitudinal.csv"
     
-    model = Model(
+    model = Model.from_files(
         filename1 = "", # DESCR
         filename2 = filename2, # COOR
         filename3 = "", # LONG

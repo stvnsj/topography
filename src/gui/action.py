@@ -166,7 +166,7 @@ def complete_cad():
 
 
     
-    model1 = model.Model(
+    model1 = model.Model.from_files(
         descriptor_file.get(),
         coordinate_file.get(),
         longitudinal_file.get()
@@ -213,7 +213,7 @@ def generateCAD():
 
     
     
-    model1 = model.Model(
+    model1 = model.Model.from_files(
         filename1 = descriptor_file.get(),   # DESCR
         filename2 = coordinate_file.get(),   # COOR
         filename3 = longitudinal_file.get(), # LONG
@@ -261,7 +261,7 @@ def generateFullCAD():
     if directory == "":
         return 
     
-    model1 = model.Model(
+    model1 = model.Model.from_files(
         descriptor_file.get(),
         coordinate_file.get(),
         longitudinal_file.get(),
@@ -278,7 +278,7 @@ def generateFullCAD():
 def generateMOP ():
     "Generates the csv version of the 5.2.2 (MOP) annex."
     
-    model1 = model.Model(
+    model1 = model.Model.from_files(
         filename1 = descriptor_file.get(),   # DESCR
         filename2 = coordinate_file.get(),   # COOR
         filename3 = longitudinal_file.get(), # LONG
@@ -292,7 +292,7 @@ def generateMOP ():
 def action_coordinate_z() :
     "Generates the input coordinate file, with adjusted heights of the longitudinal file"
     
-    model1 = model.Model(
+    model1 = model.Model.from_files(
         filename1 = descriptor_file.get(),   # DESCR
         filename2 = coordinate_file.get(),   # COOR
         filename3 = longitudinal_file.get(), # LONG
@@ -305,7 +305,7 @@ def action_coordinate_z() :
 @notify_action
 def generateAnchos() :
     
-    model1 = model.Model(
+    model1 = model.Model.from_files(
         filename1 = descriptor_file.get(),   # DESCR
         filename2 = coordinate_file.get(),   # COOR
         filename3 = longitudinal_file.get(), # LONG

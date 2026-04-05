@@ -411,7 +411,7 @@ def main():
     filename2 = "/home/jstvns/eqc-input/dbase-input/dat-et-coord.csv"
     filename3 = "/home/jstvns/eqc-input/dbase-input/longitudinal.csv"
     
-    model = mdl.Model(
+    model = mdl.Model.from_files(
         filename1 = filename1, # DESCR
         filename2 = filename2, # COOR
         filename3 = filename3, # LONG

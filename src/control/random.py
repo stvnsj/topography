@@ -85,13 +85,13 @@ def main () :
     coor_ctrl = "/home/jstvns/eqc-input/auto-control/coor-ctrl.csv"
     longitudinal = "/home/jstvns/eqc-input/auto-control/longitudinal.csv"
     
-    model1 = mdl.Model(
+    model1 = mdl.Model.from_files(
         filename1 = "", # DESCR
         filename2 = coor_topo, # COOR
         filename3 = longitudinal, # LONG
     )
     
-    model2 = mdl.Model(
+    model2 = mdl.Model.from_files(
         filename1 = "",
         filename2 = coor_ctrl,
         filename3 = longitudinal,
