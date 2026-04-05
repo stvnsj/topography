@@ -45,41 +45,65 @@ class Iterator :
         return section
         
 
-class Model :
-    def __init__ (
-            self,
-            filename1 = "", # Descriptor File
-            filename2 = "", # Coordinate File
-            filename3 = "", # Longitudinal File
+class Model:
+    def __init__(
+        self,
+        filename1="",  # Descriptor File
+        filename2="",  # Coordinate File
+        filename3="",  # Longitudinal File
     ):
-        print('refactorModel')
-        
+        self._initialize_from_files(
+            filename1=filename1,
+            filename2=filename2,
+            filename3=filename3,
+        )
+
+    @classmethod
+    def from_files(
+        cls,
+        filename1="",  # Descriptor File
+        filename2="",  # Coordinate File
+        filename3="",  # Longitudinal File
+    ):
+        obj = cls.__new__(cls)
+        obj._initialize_from_files(
+            filename1=filename1,
+            filename2=filename2,
+            filename3=filename3,
+        )
+        return obj
+
+    def _initialize_from_files(
+        self,
+        filename1="",  # Descriptor File
+        filename2="",  # Coordinate File
+        filename3="",  # Longitudinal File
+    ):
+        print("refactorModel")
+
         # This calls should be abstracted.
-        matrix_descr  = utils.read_csv(filename1) if filename1 != "" else None
-        matrix_coor   = utils.read_csv(filename2) if filename2 != "" else None 
-        matrix_height = utils.read_csv(filename3,cols=(0,1)) if filename3 != "" else None
-        
+        matrix_descr = utils.read_csv(filename1) if filename1 != "" else None
+        matrix_coor = utils.read_csv(filename2) if filename2 != "" else None
+        matrix_height = utils.read_csv(filename3, cols=(0, 1)) if filename3 != "" else None
+
         #######################
         # PRINT FILE MESSAGES #
         #######################
-        if (filename1 == "") and (filename2 == "") :
+        if (filename1 == "") and (filename2 == ""):
             print(">> Error: Se ha cargado ningún archivo transversal")
             return
-        if (filename3 == "") :
-            print(">> Advertencia: No se ha cargado un archivo longitudinal")
-        
 
-        self.profile = LongitudinalProfile.from_matrix(matrix_height);
+        if filename3 == "":
+            print(">> Advertencia: No se ha cargado un archivo longitudinal")
+
+        self.profile = LongitudinalProfile.from_matrix(matrix_height)
 
         # This dictionary contains the precise height of the DM in the project.
-        # self.heights = dict(matrix_height) if filename3 else {}
-        self.heights = self.profile.to_legacy_dict ()
-        
-        # list of cross sections of this model
-        self.sections = [] # [Section]
-        self.sectionIndex = [] # [Int]
-        
+        self.heights = self.profile.to_legacy_dict()
 
+        # list of cross sections of this model
+        self.sections = []       # [Section]
+        self.sectionIndex = []   # [int]
 
         if matrix_coor is not None:
             coor_file = CrossSectionFile.from_matrix(matrix_coor)
@@ -98,7 +122,6 @@ class Model :
                 oriented=False,
                 true_z=bool(filename3),
             )
-
 
         self.distance_sign()
         self.sections.sort()
