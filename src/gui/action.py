@@ -491,10 +491,11 @@ def generate_eje_estaca():
 @save_action_factory("Excel",'xlsx')
 @notify_action
 def generate_anexo_trans() :
-    reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
-    matrix, labels, om, ol, heights = reader.getData()
-    model = md.Model(heights,matrix,labels, om, ol)
-    annex.trans(model,SAVE_FILENAME['fullname'])
+    # reader = rd.Reader (descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
+    # matrix, labels, om, ol, heights = reader.getData()
+    # model = md.Model(heights,matrix,labels, om, ol)
+    x = model.Model.from_files(descriptor_file.get(), coordinate_file.get(), longitudinal_file.get())
+    annex.trans(x,SAVE_FILENAME['fullname'])
     
 @save_action_factory('Excel','xlsx')
 @notify_action

@@ -1,13 +1,12 @@
 import xlsxwriter
 import numpy as np
-import model as mdl
+import refactorModel.model as mdl
 import utils
 import annexUtils
 from annexUtils import Format
 import sys
-import reader as rd
-import re 
-import annexUtils
+import re
+
 
 def trans (model,filename="annex_trans.xlsx") :
     
@@ -96,33 +95,45 @@ def trans (model,filename="annex_trans.xlsx") :
         
         section.labels[1:] = section.labels[1:][ascendingIndex]
         section.labels[1:neg+1] = section.labels[1:][descendingIndex]
-        
-        
+                
         pattern = r"(-[iIdD])$"
-        
-        # Use re.sub() to remove the suffix
         clean_labels = [re.sub(pattern, "", s) for s in section.labels]
-        
-        content = np.hstack((
-            
-            utils.round(section.matrix[:,[0]]),
-            utils.round(section.distance[:,None]),
-            utils.round(section.adjustedHeight)))
-        
-        
-        for idx , row in enumerate(content):
-            
-            if not np.isnan(row[0]):
-                writer.write(f'D{ROW}',row[0],{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
-                writer.write(f'G{ROW}',row[0],{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
-            
+
+        dm_raws = section.matrix[:, 0]
+        distances = np.round(section.distance, 3)
+        heights = np.round(section.adjustedHeight, 3)
+
+        for idx, dm_raw in enumerate(dm_raws):
+            if dm_raw != "":
+                dm_value = utils.str_to_flt(dm_raw)
+
+                writer.write(
+                    f'D{ROW}', dm_value,
+                    {'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'}
+                )
+                writer.write(
+                    f'G{ROW}', dm_value,
+                    {'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'}
+                )
             else:
-                writer.write(f'D{ROW}','',{'left':1,'right':1,'font_size':10,'align':'center'})
-                writer.write(f'G{ROW}', clean_labels[idx],{'left':1,'right':1,'font_size':10,'align':'center'})
-            
-            writer.write(f'E{ROW}',row[1],{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
-            writer.write(f'F{ROW}',row[2],{'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'})
-            
+                writer.write(
+                    f'D{ROW}', '',
+                    {'left':1,'right':1,'font_size':10,'align':'center'}
+                )
+                writer.write(
+                    f'G{ROW}', clean_labels[idx],
+                    {'left':1,'right':1,'font_size':10,'align':'center'}
+                )
+
+            writer.write(
+                f'E{ROW}', distances[idx],
+                {'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'}
+            )
+            writer.write(
+                f'F{ROW}', heights[idx],
+                {'left':1,'right':1,'font_size':10,'align':'center','num_format': '#,##0.000'}
+            )
+
             ROW += 1
             
     writer.merge(f'D{ROW}:G{ROW}', '', Format.BTOP)
@@ -132,10 +143,11 @@ if __name__ == "__main__":
     f1 = sys.argv[1]
     f2 = sys.argv[2]
     
-    reader = rd.Reader (f1, "", f2)
-    matrix, labels, om, ol, heights = reader.getData()
-    model = mdl.Model(heights,matrix,labels, om, ol)
-    
+    model = mdl.Model.from_files(
+        filename1=f1,   # the file you were passing as first arg to Reader
+        filename2="",   # same empty middle file as before
+        filename3=f2,   # the file you were passing as third arg to Reader
+    )
     
     trans (model)
     
